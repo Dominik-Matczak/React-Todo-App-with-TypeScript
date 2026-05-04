@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Todo } from "../utils/types";
+import type { Todo } from "../lib/types";
 
 export function useTodos() {
 
@@ -30,12 +30,26 @@ export function useTodos() {
           queryKey: ["todos"]
         })
         console.log("Invalidated")
-        todosQuery.refetch();
+      }
+  })
+
+  const deleteTodo = useMutation<Todo, Error, Todo>({
+    mutationFn: (todo) => 
+      fetch('http://localhost:3000/todos', {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(todo)
+      }).then((res) => res.json()),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["todos"]
+        })
       }
   })
 
   const handleAddTodo = () => {
-
     const newTodo: Todo = {
       id: Date.now().toString(),
       text: "Predefined Todo", // whatever text you want
@@ -45,5 +59,10 @@ export function useTodos() {
     addTodo.mutate(newTodo);
   };
 
-  return {...todosQuery, addTodo, handleAddTodo};
+  const handleDeleteTodo = (todo: Todo) => {
+  deleteTodo.mutate(todo);
+  console.log("Usuwam!")
+};
+
+  return {...todosQuery, addTodo, handleAddTodo, handleDeleteTodo};
 }

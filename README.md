@@ -6,6 +6,8 @@ A full-stack To-Do List application built with **React**, **TypeScript**, and **
 
 > This project is currently in an early development stage.
 
+> !!! To start the enviroment type "npm run project" to start both frontend and backend at the same time!
+
 At the moment, the application includes:
 
 - Fetching tasks from the backend

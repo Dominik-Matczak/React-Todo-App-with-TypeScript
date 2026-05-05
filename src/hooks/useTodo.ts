@@ -11,7 +11,7 @@ export function useTodos() {
       fetch("http://localhost:3000/todos")
         .then((res) => res.json())
         .then((data) => {
-          console.log('Pobrane dane:', data);
+          console.log('Fetched data:', data);
           return data;
         }),
   });
@@ -35,8 +35,24 @@ export function useTodos() {
 
   const deleteTodo = useMutation<Todo, Error, Todo>({
     mutationFn: (todo) => 
-      fetch('http://localhost:3000/todos', {
+      fetch(`http://localhost:3000/todos/${todo.id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(todo)
+      }).then((res) => res.json()),
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["todos"]
+        })
+      }
+  })
+
+  const updateTodo = useMutation<Todo, Error, Todo>({
+    mutationFn: (todo) => 
+      fetch(`http://localhost:3000/todos/${todo.id}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json"
         },
@@ -52,17 +68,26 @@ export function useTodos() {
   const handleAddTodo = () => {
     const newTodo: Todo = {
       id: Date.now().toString(),
-      text: "Predefined Todo", // whatever text you want
+      text: "Predefined Todo",
       completed: false,
-      createdAt: new Date().toISOString(), // or some fixed date
+      createdAt: new Date().toISOString(),
     };
     addTodo.mutate(newTodo);
   };
 
   const handleDeleteTodo = (todo: Todo) => {
   deleteTodo.mutate(todo);
-  console.log("Usuwam!")
+  console.log("Deleting!")
 };
 
-  return {...todosQuery, addTodo, handleAddTodo, handleDeleteTodo};
+const handleUpdateTodo = (todo: Todo) => {
+  updateTodo.mutate({
+    ...todo,
+  });
+  console.log("Updating!")
+}
+
+
+
+  return {...todosQuery, handleAddTodo, handleDeleteTodo, handleUpdateTodo};
 }

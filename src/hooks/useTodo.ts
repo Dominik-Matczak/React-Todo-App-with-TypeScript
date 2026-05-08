@@ -69,6 +69,7 @@ export function useTodos() {
       id: Date.now().toString(),
       text: "Predefined Todo",
       completed: false,
+      priority: true,
       createdAt: new Date().toISOString(),
     };
     addTodo.mutate(newTodo);
